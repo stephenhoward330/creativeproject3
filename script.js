@@ -80,18 +80,23 @@ let app = new Vue({
                 this.deck2.remaining += 1;
             }
             else console.log("they're equal");
-            this.deck1.cards.splice(0, 1);
-            this.deck1.remaining--;
-            this.deck2.cards.splice(0, 1);
-            this.deck2.remaining--;
-            if (this.deck1.remaining == 0 && this.deck2.remaining == 0) {
+            if (this.deck1.remaining == 1 && this.deck2.remaining == 1) {
                 console.log("TIE");
+                document.getElementById("app").innerHTML = "<h2> GAME OVER: TIE <h2/>";
             }
-            else if (this.deck1.remaining == 0) {
-                console.log("Deck 1 wins!");
-            }
-            else if (this.deck2.remaining == 0) {
+            else if (this.deck1.remaining == 1) {
                 console.log("Deck 2 wins!");
+                document.getElementById("app").innerHTML = "<h2> GAME OVER: Deck 2 wins! <h2/>";
+            }
+            else if (this.deck2.remaining == 1) {
+                console.log("Deck 1 wins!");
+                document.getElementById("app").innerHTML = "<h2> GAME OVER: Deck 1 wins! <h2/>";
+            }
+            else {
+                this.deck1.cards.splice(0, 1);
+                this.deck1.remaining--;
+                this.deck2.cards.splice(0, 1);
+                this.deck2.remaining--;
             }
         },
     }
