@@ -4,12 +4,12 @@ let app = new Vue({
         deck1: {
             remaining: '',
             deck_id: '',
-            cards: {},
+            cards: [],
         },
         deck2: {
             remaining: '',
             deck_id: '',
-            cards: {},
+            cards: [],
         },
         card: {},
         loading: true,
@@ -28,67 +28,120 @@ let app = new Vue({
             try {
                 this.loading = true;
                 const response = await axios.get('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1');
-                this.deck1.remaining = response.remaining;
-                this.deck1.deck_id = response.deck_id;
+                this.deck1.remaining = response.data.remaining;
+                this.deck1.deck_id = response.data.deck_id;
 
                 const response2 = await axios.get('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1');
-                this.deck2.remaining = response2.remaining;
-                this.deck2.deck_id = response2.deck_id;
+                this.deck2.remaining = response2.data.remaining;
+                this.deck2.deck_id = response2.data.deck_id;
                 this.loading = false;
             }
             catch (error) {
                 console.log(error);
             }
-            this.drawAllCards();
-        },
-        async drawAllCards() {
+            let response = await axios.get('https://deckofcardsapi.com/api/deck/' + this.deck1.deck_id + '/draw/?count=52');
             for (let i = 0; i < 52; i++) {
-                let response = await axios.get('https://deckofcardsapi.com/api/deck/' + this.deck1.deck_id + '/draw/?count=1');
-                Vue.set(app.deck1.cards, i, new Array);
-                this.deck1.cards[i].push({
-                    value: response.cards.value,
-                    image: response.cards.image,
+                //Vue.set(app.deck1.cards, i, new Array);
+                let newVal = '';
+                if (response.data.cards[i].value == 'KING') newVal = 13;
+                else if (response.data.cards[i].value == 'QUEEN') newVal = 12;
+                else if (response.data.cards[i].value == 'JACK') newVal = 11;
+                else if (response.data.cards[i].value == 'ACE') newVal = 1;
+                else newVal = response.data.cards[i].value;
+                this.deck1.cards.push({
+                    value: newVal,
+                    image: response.data.cards[i].image,
                 });
-                if (this.deck1.cards[i].value == 'KING') this.deck1.cards[i].value = 13;
-                if (this.deck1.cards[i].value == 'QUEEN') this.deck1.cards[i].value = 12;
-                if (this.deck1.cards[i].value == 'JACK') this.deck1.cards[i].value = 11;
-                if (this.deck1.cards[i].value == 'ACE') this.deck1.cards[i].value = 1;
-                console.log(this.deck1);
+            }
+            response = await axios.get('https://deckofcardsapi.com/api/deck/' + this.deck2.deck_id + '/draw/?count=52');
+            for (let i = 0; i < 52; i++) {
+                //Vue.set(app.deck2.cards, i, new Array);
+                let newVal = '';
+                if (response.data.cards[i].value == 'KING') newVal = 13;
+                else if (response.data.cards[i].value == 'QUEEN') newVal = 12;
+                else if (response.data.cards[i].value == 'JACK') newVal = 11;
+                else if (response.data.cards[i].value == 'ACE') newVal = 1;
+                else newVal = response.data.cards[i].value;
+                this.deck2.cards.push({
+                    value: newVal,
+                    image: response.data.cards[i].image,
+                });
             }
         },
-        // previousComic() {
-        //     this.number = this.current.num - 1;
-        //     if (this.number < 1)
-        //         this.number = 1;
-        // },
-        // nextComic() {
-        //     this.number = this.current.num + 1;
-        //     if (this.number > this.max)
-        //         this.number = this.max
-        // },
-        // getRandom(min, max) {
-        //     min = Math.ceil(min);
-        //     max = Math.floor(max);
-        //     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum and minimum are inclusive
-        // },
-        // randomComic() {
-        //     this.number = this.getRandom(1, this.max);
-        // },
-        // firstComic() {
-        //     this.number = 1;
-        // },
-        // lastComic() {
-        //     this.number = this.max;
-        // },
-        // setRating(rating) {
-        //     if (!(this.number in this.ratings))
-        //         Vue.set(this.ratings, this.number, {
-        //             sum: 0,
-        //             total: 0
-        //         });
-        //     this.ratings[this.number].sum += rating;
-        //     this.ratings[this.number].total += 1;
-        // }
+        fight() {
+            if (this.deck1.cards[0][0].value > this.deck2.cards[0][0].value) {
+                console.log("deck 1 is higher");
+                if (!(this.deck1.remaining in this.deck1.cards)) {
+                    Vue.set(app.deck1.cards, this.deck1.remaining, new Array);
+                    this.deck1.cards[this.deck1.remaining].push({
+                        value: this.deck1.cards[0][0].value,
+                        image: this.deck1.cards[0][0].image,
+                    });
+                }
+                else {
+                    this.deck1.cards[this.deck1.remaining][0].value = this.deck1.cards[0][0].value;
+                    this.deck1.cards[this.deck1.remaining][0].image = this.deck1.cards[0][0].image;
+                }
+                this.deck1.remaining++;
+                if (!(this.deck2.remaining in this.deck2.cards)) {
+                    Vue.set(app.deck1.cards, this.deck1.remaining + 1, new Array);
+                    this.deck1.cards[this.deck1.remaining + 1].push({
+                        value: this.deck2.cards[0][0].value,
+                        image: this.deck2.cards[0][0].image,
+                    });
+                }
+                else {
+                    this.deck1.cards[this.deck1.remaining + 1][0].value = this.deck2.cards[0][0].value;
+                    this.deck1.cards[this.deck1.remaining + 1][0].image = this.deck2.cards[0][0].image;
+                }
+                this.deck1.remaining++;
+            }
+            else if (this.deck2.cards[0][0].value > this.deck1.cards[0][0].value) {
+                if (!(this.deck1.remaining in this.deck1.cards)) {
+                    Vue.set(app.deck2.cards, this.deck2.remaining, new Array);
+                    this.deck2.cards[this.deck2.remaining].push({
+                        value: this.deck1.cards[0][0].value,
+                        image: this.deck1.cards[0][0].image,
+                    });
+                }
+                else {
+                    this.deck2.cards[this.deck2.remaining][0].value = this.deck1.cards[0][0].value;
+                    this.deck2.cards[this.deck2.remaining][0].image = this.deck1.cards[0][0].image;
+                }
+                this.deck2.remaining++;
+                if (!(this.deck2.remaining in this.deck2.cards)) {
+                    Vue.set(app.deck2.cards, this.deck2.remaining + 1, new Array);
+                    this.deck2.cards[this.deck2.remaining + 1].push({
+                        value: this.deck2.cards[0][0].value,
+                        image: this.deck2.cards[0][0].image,
+                    });
+                }
+                else {
+                    this.deck2.cards[this.deck2.remaining + 1][0].value = this.deck2.cards[0][0].value;
+                    this.deck2.cards[this.deck2.remaining + 1][0].image = this.deck2.cards[0][0].image;
+                }
+                this.deck2.remaining++;
+
+                // console.log("deck 2 is higher");
+                // Vue.set(app.deck2.cards, this.deck2.remaining, new Array);
+                // this.deck2.cards[this.deck2.remaining].push({
+                //     value: this.deck1.cards[0][0].value,
+                //     image: this.deck1.cards[0][0].image,
+                // });
+                // this.deck2.remaining++;
+                // Vue.set(app.deck2.cards, this.deck2.remaining + 1, new Array);
+                // this.deck2.cards[this.deck2.remaining + 1].push({
+                //     value: this.deck2.cards[0][0].value,
+                //     image: this.deck2.cards[0][0].image,
+                // });
+                // this.deck2.remaining++;
+            }
+            else console.log("they're equal");
+            this.deck1.cards.splice(0, 1);
+            this.deck1.remaining--;
+            this.deck2.cards.splice(0, 1);
+            this.deck2.remaining--;
+        },
     }
 });
 
