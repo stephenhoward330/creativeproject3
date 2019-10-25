@@ -121,22 +121,16 @@ let app = new Vue({
                 console.log("TIE");
                 this.gameover = true;
                 this.finaltie = true;
-                // let html = "<h2> GAME OVER: TIE! <h2/>";
-                // document.getElementById("end").innerHTML = html;
             }
             else if (this.deck1.remaining == 1) {
                 console.log("Deck 2 wins!");
                 this.gameover = true;
                 this.finaltwowin = true;
-                // let html = "<h2> GAME OVER: Deck 2 wins! <h2/>";
-                // document.getElementById("end").innerHTML = html;
             }
             else if (this.deck2.remaining == 1) {
                 console.log("Deck 1 wins!");
                 this.gameover = true;
                 this.finalonewin = true;
-                // let html = "<h2> GAME OVER: Deck 1 wins! <h2/>";
-                // document.getElementById("end").innerHTML = html;
             }
             else {
                 this.deck1.cards.splice(0, 1);
